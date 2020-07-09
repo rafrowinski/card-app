@@ -1,3 +1,4 @@
 declare module 'creditcard.js' {
-    export const CreditCard: any;
+    const CreditCard: any;
+    export default CreditCard;
 }

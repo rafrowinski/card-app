@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 import './App.css';
 import CreditCard from 'creditcard.js';
 import creditCardType from 'credit-card-type';
+import visa from 'payment-icons/min/flat/visa.svg';
+import mastercard from 'payment-icons/min/flat/mastercard.svg';
+import defaultCardIcon from 'payment-icons/min/mono/default.svg';
 
 interface FormValues {
     number: string,
@@ -14,8 +17,8 @@ enum CardType {
     none = 'none',
     visa = 'visa',
     mastercard = 'mastercard',
-    'american-express' = 'american-express',
-    'diners-club' = 'diners-club',
+    americanExpress = 'american-express',
+    dinersClub = 'diners-club',
     discover = 'discover',
     jcb = 'jcb',
     unionpay = 'unionpay',
@@ -26,10 +29,24 @@ enum CardType {
     hipercard = 'hipercard',
 }
 
+const CardIconMap: Record<CardType, string> = {
+    [CardType.none]: defaultCardIcon,
+    [CardType.visa]: visa,
+    [CardType.mastercard]: mastercard,
+    [CardType.americanExpress]: visa,
+    [CardType.dinersClub]: visa,
+    [CardType.discover]: visa,
+    [CardType.jcb]: visa,
+    [CardType.unionpay]: visa,
+    [CardType.maestro]: visa,
+    [CardType.mir]: visa,
+    [CardType.elo]: visa,
+    [CardType.hiper]: visa,
+    [CardType.hipercard]: visa,
+}
 
 function App() {
     const [cardType, setCardType] = useState(CardType.none);
-    // @ts-ignore
     const creditCardHelper = new CreditCard();
 
     const formatCardNumber = (value: string) => {
@@ -78,11 +95,22 @@ function App() {
                                 errors.number = 'invalid card number';
                             }
                         }
-                        const cardString = values.number.replace(/\s/g, '');
-                        creditCardHelper.isValid('4916108926268679'); // returns true
-                        creditCardHelper.isExpirationDateValid('02', '2020'); // returns true
-                        creditCardHelper.isSecurityCodeValid('4556603578296676', '250'); // returns true
-                        creditCardHelper.getCreditCardNameByNumber('4539578763621486'); // returns 'Visa'
+                        if (!date ||date.length < 5) {
+                            errors.date = 'date is required';
+                        } else {
+                            const dateStrings = date.split('/');
+                            if(!creditCardHelper.isExpirationDateValid(dateStrings[0], '20' + dateStrings[1])) {
+                                errors.date = 'date is not valid';
+                            }
+                        }
+                        if(!cvc) {
+                            errors.cvc = 'cvc is required';
+                        } else {
+                            const unformattedNumber = number.replace(/\s/g, '');
+                            if (!creditCardHelper.isSecurityCodeValid(unformattedNumber, cvc)) {
+                                errors.cvc = 'invalid cvc number';
+                            }
+                        }
                         return errors;
                     }
                 }
@@ -101,7 +129,7 @@ function App() {
                       isSubmitting,
                   }: FormikProps<FormValues>) => (
                     <form onSubmit={handleSubmit}>
-                        {cardType}
+                        {<img src={CardIconMap[cardType]} />}
                         <input type="text"
                                name="number"
                                onChange={handleChange}
@@ -134,9 +162,9 @@ function App() {
                         <button type="submit" disabled={isSubmitting}>
                             Submit
                         </button>
-                        {errors.number && touched.number && errors.number}
-                        {errors.date && touched.date && errors.date}
-                        {errors.cvc && touched.cvc && errors.cvc}
+                        <div>{errors.number && touched.number && errors.number}</div>
+                        <div>{errors.date && touched.date && errors.date}</div>
+                        <div>{errors.cvc && touched.cvc && errors.cvc}</div>
                     </form>
                 )}
             </Formik>
