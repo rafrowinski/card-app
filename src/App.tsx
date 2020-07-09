@@ -53,8 +53,9 @@ function App() {
     const setCardIconAndChangeFocus = (inputEvent: any) => {
         const number = inputEvent.target.value
         if (number) {
-            const cardType = creditCardType(number.replace(/\s/g, ''));
-            setCardType(cardType[0].type as CardType);
+            const creditCardData = creditCardType(number.replace(/\s/g, ''));
+            const cardType = creditCardData.length && creditCardData[0].type ? creditCardData[0].type as CardType : CardType.none;
+            setCardType(cardType);
         } else {
             setCardType(CardType.none);
         }
@@ -110,7 +111,7 @@ function App() {
                                onInput={setCardIconAndChangeFocus}
                                placeholder="Card number"
                         />
-                        {errors.number && touched.number && errors.number}
+
                         <input type="text"
                                name="date"
                                onChange={handleChange}
@@ -120,7 +121,7 @@ function App() {
                                onInput={changeFocus}
                                placeholder="MM/YY"
                         />
-                        {errors.date && touched.date && errors.date}
+
                         <input type="text"
                                name="cvc"
                                onChange={handleChange}
@@ -129,10 +130,13 @@ function App() {
                                value={formatCardNumber(values.cvc)}
                                placeholder="CVC"
                         />
-                        {errors.cvc && touched.cvc && errors.cvc}
+
                         <button type="submit" disabled={isSubmitting}>
                             Submit
                         </button>
+                        {errors.number && touched.number && errors.number}
+                        {errors.date && touched.date && errors.date}
+                        {errors.cvc && touched.cvc && errors.cvc}
                     </form>
                 )}
             </Formik>
