@@ -5,7 +5,14 @@ import CreditCard from 'creditcard.js';
 import creditCardType from 'credit-card-type';
 import visa from 'payment-icons/min/flat/visa.svg';
 import mastercard from 'payment-icons/min/flat/mastercard.svg';
-import defaultCardIcon from 'payment-icons/min/mono/default.svg';
+import amex from 'payment-icons/min/flat/amex.svg';
+import diners from 'payment-icons/min/flat/diners.svg';
+import discover from 'payment-icons/min/flat/discover.svg';
+import jcb from 'payment-icons/min/flat/jcb.svg';
+import unionpay from 'payment-icons/min/flat/unionpay.svg';
+import maestro from 'payment-icons/min/flat/maestro.svg';
+import unknownCardIcon from 'payment-icons/min/mono/default.svg';
+import defaultCardIcon from 'payment-icons/min/flat/default.svg';
 
 interface FormValues {
     number: string,
@@ -30,19 +37,19 @@ enum CardType {
 }
 
 const CardIconMap: Record<CardType, string> = {
-    [CardType.none]: defaultCardIcon,
+    [CardType.none]: unknownCardIcon,
     [CardType.visa]: visa,
     [CardType.mastercard]: mastercard,
-    [CardType.americanExpress]: visa,
-    [CardType.dinersClub]: visa,
-    [CardType.discover]: visa,
-    [CardType.jcb]: visa,
-    [CardType.unionpay]: visa,
-    [CardType.maestro]: visa,
-    [CardType.mir]: visa,
-    [CardType.elo]: visa,
-    [CardType.hiper]: visa,
-    [CardType.hipercard]: visa,
+    [CardType.americanExpress]: amex,
+    [CardType.dinersClub]: diners,
+    [CardType.discover]: discover,
+    [CardType.jcb]: jcb,
+    [CardType.unionpay]: unionpay,
+    [CardType.maestro]: maestro,
+    [CardType.mir]: defaultCardIcon,
+    [CardType.elo]: defaultCardIcon,
+    [CardType.hiper]: defaultCardIcon,
+    [CardType.hipercard]: defaultCardIcon,
 }
 
 function App() {
@@ -81,93 +88,109 @@ function App() {
 
     return (
         <div className="App">
-            <Formik
-                initialValues={{ number: '', date: '', cvc: '' }}
-                validate={
-                    values => {
-                        let errors = {} as FormikErrors<FormValues>;
-                        const { number, date, cvc } = values;
-                        if (!number) {
-                            errors.number = 'credit card number is required';
-                        } else {
-                            const unformattedNumber = number.replace(/\s/g, '');
-                            if (!creditCardHelper.isValid(unformattedNumber)) {
-                                errors.number = 'invalid card number';
+            <div className="wrapper">
+                <Formik
+                    initialValues={{ number: '', date: '', cvc: '' }}
+                    validate={
+                        values => {
+                            let errors = {} as FormikErrors<FormValues>;
+                            const { number, date, cvc } = values;
+                            if (!number) {
+                                errors.number = 'credit card number is required';
+                            } else {
+                                const unformattedNumber = number.replace(/\s/g, '');
+                                if (!creditCardHelper.isValid(unformattedNumber)) {
+                                    errors.number = 'invalid card number';
+                                }
                             }
-                        }
-                        if (!date ||date.length < 5) {
-                            errors.date = 'date is required';
-                        } else {
-                            const dateStrings = date.split('/');
-                            if(!creditCardHelper.isExpirationDateValid(dateStrings[0], '20' + dateStrings[1])) {
-                                errors.date = 'date is not valid';
+                            if (!date || date.length < 5) {
+                                errors.date = 'date is required';
+                            } else {
+                                const dateStrings = date.split('/');
+                                if (!creditCardHelper.isExpirationDateValid(dateStrings[0], '20' + dateStrings[1])) {
+                                    errors.date = 'date is not valid';
+                                }
                             }
-                        }
-                        if(!cvc) {
-                            errors.cvc = 'cvc is required';
-                        } else {
-                            const unformattedNumber = number.replace(/\s/g, '');
-                            if (!creditCardHelper.isSecurityCodeValid(unformattedNumber, cvc)) {
-                                errors.cvc = 'invalid cvc number';
+                            if (!cvc) {
+                                errors.cvc = 'cvc is required';
+                            } else {
+                                const unformattedNumber = number.replace(/\s/g, '');
+                                if (!creditCardHelper.isSecurityCodeValid(unformattedNumber, cvc)) {
+                                    errors.cvc = 'invalid cvc number';
+                                }
                             }
+                            return errors;
                         }
-                        return errors;
                     }
-                }
-                onSubmit={(values, { setSubmitting }) => {
-                    console.log('here are the values', values);
-                    setSubmitting(false);
-                }}
-            >
-                {({
-                      values,
-                      errors,
-                      touched,
-                      handleChange,
-                      handleBlur,
-                      handleSubmit,
-                      isSubmitting,
-                  }: FormikProps<FormValues>) => (
-                    <form onSubmit={handleSubmit}>
-                        {<img src={CardIconMap[cardType]} />}
-                        <input type="text"
-                               name="number"
-                               onChange={handleChange}
-                               onBlur={handleBlur}
-                               maxLength={19}
-                               value={formatCardNumber(values.number)}
-                               onInput={setCardIconAndChangeFocus}
-                               placeholder="Card number"
-                        />
+                    onSubmit={(values, { setSubmitting }) => {
+                        console.log('here are the values', values);
+                        setSubmitting(false);
+                    }}
+                >
+                    {({
+                          values,
+                          errors,
+                          touched,
+                          handleChange,
+                          handleBlur,
+                          handleSubmit,
+                          isSubmitting,
+                      }: FormikProps<FormValues>) => (
+                        <>
 
-                        <input type="text"
-                               name="date"
-                               onChange={handleChange}
-                               onBlur={handleBlur}
-                               maxLength={5}
-                               value={formatDate(values.date)}
-                               onInput={changeFocus}
-                               placeholder="MM/YY"
-                        />
+                            <form onSubmit={handleSubmit} className="form">
+                                <div className="form__items-wrapper">
+                                    {<img src={CardIconMap[cardType]}
+                                          className="form__card-image"/>}
+                                    <input type="text"
+                                           name="number"
+                                           onChange={handleChange}
+                                           onBlur={handleBlur}
+                                           maxLength={19}
+                                           value={formatCardNumber(values.number)}
+                                           onInput={setCardIconAndChangeFocus}
+                                           placeholder="Card number"
+                                           className="form__input form__input--number"
+                                    />
 
-                        <input type="text"
-                               name="cvc"
-                               onChange={handleChange}
-                               onBlur={handleBlur}
-                               maxLength={3}
-                               value={formatCardNumber(values.cvc)}
-                               placeholder="CVC"
-                        />
+                                    <input type="text"
+                                           name="date"
+                                           onChange={handleChange}
+                                           onBlur={handleBlur}
+                                           maxLength={5}
+                                           value={formatDate(values.date)}
+                                           onInput={changeFocus}
+                                           placeholder="MM/YY"
+                                           className="form__input form__input--date"
+                                    />
 
-                        <button type="submit" disabled={isSubmitting}>
-                            Submit
-                        </button>
-                        <div>{errors.number && touched.number && errors.number}</div>
-                        <div>{errors.date && touched.date && errors.date}</div>
-                        <div>{errors.cvc && touched.cvc && errors.cvc}</div>
-                    </form>
-                )}
-            </Formik>
+                                    <input type="text"
+                                           name="cvc"
+                                           onChange={handleChange}
+                                           onBlur={handleBlur}
+                                           maxLength={3}
+                                           value={formatCardNumber(values.cvc)}
+                                           placeholder="CVC"
+                                           className="form__input form__input--cvc"
+                                    />
+
+
+                                </div>
+                                <button type="submit"
+                                        disabled={isSubmitting}
+                                        className="form__submit">
+                                    Submit
+                                </button>
+                            </form>
+                            <div className="errors">
+                                <div>{errors.number && touched.number && errors.number}</div>
+                                <div>{errors.date && touched.date && errors.date}</div>
+                                <div>{errors.cvc && touched.cvc && errors.cvc}</div>
+                            </div>
+                        </>
+                    )}
+                </Formik>
+            </div>
         </div>
     );
 }
